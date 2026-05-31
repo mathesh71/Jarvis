@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🤖 JARVIS</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Background Canvas -->
+  <canvas id="aiBackground"></canvas>
+
+  <!-- MAIN UI -->
+  <div class="app-container">
+    
+    <!-- Robot Face -->
+    <div class="robot-face">
+      <div class="eye left-eye"></div>
+      <div class="eye right-eye"></div>
+      <div class="radar" id="radar"></div>
+    </div>
+
+    <!-- Chatbox -->
+    <div class="chat-box" id="chat-box">
+      <div class="ai-message">
+        👋 Hello! I’m your <strong>JARVIS</strong>. Tap the mic to talk 🎤
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="status" id="status"> ✅ ASK ANYTHING </div>
+
+    <!-- Mic Button -->
+    <button id="mic-btn" class="jarvis-btn">
+      <img src="jarvisbutton.jpg" alt="Jarvis Reactor" class="jarvis-core"/>
+    </button>
+
+  </div>
+ 
+
+  <!-- BACKGROUND ANIMATION -->
+  <script>
+  const canvas = document.getElementById("aiBackground");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  let nodes = [];
+  const NODE_COUNT = 40;
+  const DIST = 180;
+
+  for (let i = 0; i < NODE_COUNT; i++) {
+    nodes.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      dx: (Math.random()-0.5)*1.5,
+      dy: (Math.random()-0.5)*1.5,
+      r: Math.random()*3+1
+    });
+  }
+
+  function drawBG() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "rgba(0, 10, 20, 0.25)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    for (let i = 0; i < nodes.length; i++) {
+      let A = nodes[i];
+
+      ctx.beginPath();
+      ctx.arc(A.x,A.y,A.r,0,Math.PI*2);
+      ctx.fillStyle = "#00ffff";
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = "#00ffff";
+      ctx.fill();
+
+      for (let j = i+1; j < nodes.length; j++) {
+        let B = nodes[j];
+        let dx = A.x-B.x, dy = A.y-B.y;
+        let d = Math.sqrt(dx*dx+dy*dy);
+
+        if (d < DIST) {
+          ctx.strokeStyle = `rgba(0,255,255,${1-d/DIST})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(A.x,A.y);
+          ctx.lineTo(B.x,B.y);
+          ctx.stroke();
+        }
+      }
+
+      A.x += A.dx;
+      A.y += A.dy;
+
+      if (A.x<0 || A.x>canvas.width) A.dx*=-1;
+      if (A.y<0 || A.y>canvas.height) A.dy*=-1;
+    }
+
+    requestAnimationFrame(drawBG);
+  }
+
+  drawBG();
+
+  window.addEventListener("resize", () => {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  });
+  </script>
+
+<!-- Load Socket.IO from backend -->
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+
+<!-- Load main frontend logic -->
+<script src="./script.js"></script>
+
+</body>
+</html>
+
